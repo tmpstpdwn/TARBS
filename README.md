@@ -15,8 +15,8 @@ The list of packages to be installed and folders to be created are stored in the
 This works as the package installations and folder setup happens after dofiles installation.
 
 By default, TARBS installs [my dotfiles repo (voidrice) here](https://github.com/tmpstpdwn/.dotfiles).
-so the list of packages it uses is [here in .packages](https://github.com/tmpstpdwn/.dotfiles/.packages) and
-list of folders it uses is [here in .folders](https://github.com/tmpstpdwn/.dotfiles/.folders).
+so the list of packages it uses is [here in .packages](https://github.com/tmpstpdwn/.dotfiles/blob/main/.packages) and
+list of folders it uses is [here in .folders](https://github.com/tmpstpdwn/.dotfiles/blob/main/.folders).
 
 You can change this behaviour by modifying the `dotfilesrepo` variable in the script to make it use your dotfiles
 repo.
