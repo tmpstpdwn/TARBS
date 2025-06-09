@@ -22,6 +22,26 @@ error_exit() {
 	exit 1
 }
 
+backup() {
+	local backupdir
+	backupdir="$HOME/home_backup_$(date +%Y%m%d_%H%M%S)"
+  mkdir -p "$backupdir"
+	for f in "$HOME"/* "$HOME"/.*; do
+	    base=$(basename "$f")
+	    # Skip . and ..
+	    if [ "$base" = "." ] || [ "$base" = ".." ]; then
+	        continue
+	    fi
+
+	    # Skip the backup directory itself
+	    if [ "$f" = "$backupdir" ]; then
+	        continue
+	    fi
+
+	    mv "$f" "$backupdir" || error_exit "Backup interrupted while moving $f"
+	done
+}
+
 initialize() {
 	dialog --title "Welcome!" \
 		--msgbox "Welcome to Tmpstpdwn's Auto-Rice Bootstrapping Script!\n\nThis script will install my personal minimal void-linux environment." 10 60
@@ -30,12 +50,7 @@ initialize() {
 		clear
 		exit 1
 	}
-	local backupdir
-	backupdir="$HOME/home_backup_$(date +%Y%m%d_%H%M%S)"
-  mkdir -p "$backupdir"
-	shopt -s dotglob
-	mv "$HOME"/* "$backupdir" 2>/dev/null	|| error_exit "Backup interrupted."
-	shopt -u dotglob
+	backup
 	dialog --title "Backup completed" --msgbox "All existing files and folders in $HOME have been moved to $backupdir"
 }
 
