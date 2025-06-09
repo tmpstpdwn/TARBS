@@ -2,21 +2,26 @@
 
 ## What is TARBS?
 
-TARBS is a script that autoinstalls and autoconfigures a fully-functioning
-and minimal void Linux environment.
+TARBS is a script that autoinstalls and autoconfigures a minimal Linux environment.
+
+## What does it do?
+
+TARBS does the following things:
+- Download and setup dotfiles.
+- install packages.
+
+I manage dotfiles using [The git bare method](https://www.atlassian.com/git/tutorials/dotfiles).
+Therefore this script installs dotfiles using the method described in the article.
+
+TARBS require `.packages` csv file,  a list of packages to be installed, mode of installation and a short desciption for each package.
+This file is expected to be at `$HOME/.packages` of the dotfiles git repo.
+
+As the packages are installed after dotfiles setup, putting the package list in the dotfiles git repo makes it convenient.
 
 ## Customization
 
-I manage dotfiles using [The git bare method](https://www.atlassian.com/git/tutorials/dotfiles).
-Therefore this script installs dotfiles using the method described in that article.
-
-The list of packages to be installed and folders to be created are stored in the dotfiles at `$HOME/.packages` &&
-`$HOME/.folders`.
-This works as the package installations and folder setup happens after dofiles installation.
-
 By default, TARBS installs [my dotfiles repo (voidrice) here](https://github.com/tmpstpdwn/.dotfiles).
-so the list of packages it uses is [here in .packages](https://github.com/tmpstpdwn/.dotfiles/blob/main/.packages) and
-list of folders it uses is [here in .folders](https://github.com/tmpstpdwn/.dotfiles/blob/main/.folders).
+so the list of packages it uses is [here in .packages](https://github.com/tmpstpdwn/.dotfiles/blob/main/.packages).
 
 You can change this behaviour by modifying the `dotfilesrepo` variable in the script to make it use your dotfiles
 repo.
@@ -33,11 +38,7 @@ git repository that is meant to be `make && sudo make install`ed.
 The second column is the name of the program in the repository, or the link to
 the git repository, and the third column is a description (should be a verb
 phrase) that describes the program. During installation, TARBS will print out
-this information in a grammatical sentence. It also doubles as documentation
-for people who read the CSV and want to install my dotfiles manually.
-
-Depending on your own build, you may want to tactically order the programs in
-your programs file. TARBS will install from the top to the bottom.
+this information in a grammatical sentence.
 
 If you include commas in your program descriptions, be sure to include double
 quotes around the whole description to ensure correct parsing.
