@@ -1,0 +1,121 @@
+#!/bin/bash
+
+# Tmpstpdwn's Auto Rice Bootstrapping Script (TARBS)
+# by
+#	Luke Smith <luke@lukesmith.xyz>,
+#	Tmpstpdwn <tmpstpdwn@tuta.io>
+# License: GNU GPLv3
+
+### VARIABLES ###
+
+dotfilesrepo="https://github.com/tmpstpdwn/.dotfiles.git"
+packages="$HOME/.packages"
+logfile="$HOME/tarbs.log"
+
+### FUNCTIONS ###
+
+error_exit() {
+	local message="$1"
+	dialog --title "Error" --msgbox "$message" 10 60
+	echo "[ERROR] $message" >> "$logfile"
+	clear
+	exit 1
+}
+
+initialize() {
+	dialog --title "Welcome!" \
+		--msgbox "Welcome to Tmpstpdwn's Auto-Rice Bootstrapping Script!\n\nThis script will install my personal minimal void-linux environment." 10 60
+	dialog --title "Ready to install?" --yes-label "Let's go!" --no-label "No, nevermind!" \
+		--yesno "Caution: This script will backup everything in $HOME to a backup folder.\n\nPress <Let's go!> and the system will begin installation !" 13 60 || {
+		clear
+		exit 1
+	}
+	local backupdir
+	backupdir="$HOME/home_backup_$(date +%Y%m%d_%H%M%S)"
+  mkdir -p "$backupdir"
+	shopt -s dotglob
+	mv "$HOME"/* "$backupdir" 2>/dev/null	|| error_exit "Backup interrupted."
+	shopt -u dotglob
+	dialog --title "Backup completed" --msgbox "All existing files and folders in $HOME have been moved to $backupdir"
+}
+
+dotfiles() {
+	/usr/bin/git --git-dir="$HOME/.dotfiles" --work-tree="$HOME" "$@"
+}
+
+dotfilesetup() {
+	dialog --title "Dotfiles setup" --infobox "Downloading and installing config files..." 7 40
+	git clone --bare "$dotfilesrepo" "$HOME/.dotfiles" || error_exit "Failed to clone $dotfilesrepo."
+	dotfiles checkout || error_exit "Failed to checkout dotfiles."
+	dotfiles config --local status.showUntrackedFiles no
+}
+
+installpkg() {
+    sudo xbps-install -y -S "$1" >/dev/null 2>&1
+}
+
+maininstall() {
+	dialog --title "Package Installation" \
+		--infobox "Installing $1\n\n$2" 9 70
+	installpkg "$1" || error_exit "Error installing $1."
+}
+
+installationloop() {
+    while IFS= read -r line; do
+        # Skip empty lines and lines starting with #
+        [[ -z "$line" || "$line" =~ ^[[:space:]]*# ]] && continue
+
+        # Process the line
+        IFS=, read -r tag program comment <<< "$line"
+        echo "$comment" | grep -q "^\".*\"$" && comment="$(echo "$comment" | sed -E "s/(^\"|\"$)//g")"
+        case "$tag" in
+            *) maininstall "$program" "$comment" ;;
+        esac
+    done < "$packages"
+}
+
+finalize() {
+	dialog --title "All done!" \
+		--msgbox "Congrats! Provided there were no hidden errors, the script completed successfully and all the programs and configuration files should be in place." 7 80
+	clear
+}
+
+### THE ACTUAL SCRIPT ###
+
+### This is how everything happens in an intuitive format and order.
+
+# Ensure `dialog` exists or else install it.
+command -v dialog >/dev/null 2>&1 || {
+	echo "'dialog' not found. Installing..."
+	sudo xbps-install -y -S dialog || {
+		echo "Failed to install 'dialog'. Please install it manually."
+		exit 1
+	}
+}
+	
+# Ensure `$packages` exists or else quit.
+if [ ! -f "$packages" ]; then
+		dialog --title "Missing Package list File" \
+			--msgbox "Make sure $packages exists before running." 10 60
+			clear
+			exit 1
+fi
+
+# Create / Reset log file.
+> "$logfile"
+
+# Welcome to the script.
+initialize
+
+# Install the dotfiles. 
+dotfilesetup
+
+# The command that does all the installing. Reads the $packages file and
+# installs each needed program the way required. Be sure to run this only after
+# all build dependencies are installed.
+installationloop
+
+# Last message! Install complete!
+finalize
+
+### END ###

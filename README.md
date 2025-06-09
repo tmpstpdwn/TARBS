@@ -32,8 +32,7 @@ TARBS will parse the given programs list and install all given programs. Note
 that the programs file must be a three column `.csv`.
 
 The first column is a "tag" that determines how the program is installed, ""
-(blank) for the main repository or `G` if the program is a
-git repository that is meant to be `make && sudo make install`ed.
+(blank) for the main repository.
 
 The second column is the name of the program in the repository, or the link to
 the git repository, and the third column is a description (should be a verb
