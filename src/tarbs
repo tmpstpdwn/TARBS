@@ -93,14 +93,6 @@ command -v dialog >/dev/null 2>&1 || {
 	}
 }
 	
-# Ensure `$packages` exists or else quit.
-if [ ! -f "$packages" ]; then
-		dialog --title "Missing Package list File" \
-			--msgbox "Make sure $packages exists before running." 10 60
-			clear
-			exit 1
-fi
-
 # Create / Reset log file.
 > "$logfile"
 
@@ -109,6 +101,14 @@ initialize
 
 # Install the dotfiles. 
 dotfilesetup
+
+# Ensure `$packages` exists or else quit.
+if [ ! -f "$packages" ]; then
+		dialog --title "Missing Package list File" \
+			--msgbox "Make sure $packages exists before running." 10 60
+			clear
+			exit 1
+fi
 
 # The command that does all the installing. Reads the $packages file and
 # installs each needed program the way required. Be sure to run this only after
