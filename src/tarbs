@@ -14,9 +14,9 @@ tmplog="/tmp/tarbs.log"
 ### FUNCTIONS ###
 
 header() {
-		clear
-    echo "$1 $2"
-    printf '%*s\n' "${#1}" '' | tr ' ' "-"
+	clear
+	echo "$1 $2"
+	printf '%*s\n' "${#1}" '' | tr ' ' "-"
 }
 
 error_exit() {
@@ -37,7 +37,7 @@ initialize() {
 	    clear
 	    exit 1
 	fi
-	rm ~/.* ~/* -rf
+	rm ~/.* ~/* -rf >"$tmplog" 2>&1 || error_exit "Failed to clear $HOME."
 }
 
 dotfiles() {
@@ -52,7 +52,7 @@ dotfilesetup() {
 }
 
 installpkg() {
-    sudo xbps-install -y -S "$1" >"$tmplog" 2>&1
+	sudo xbps-install -y -S "$1" >"$tmplog" 2>&1
 }
 
 maininstall() {
@@ -61,16 +61,16 @@ maininstall() {
 }
 
 installationloop() {
-		header "Package Installation"
-		echo
-    while IFS= read -r line; do
-        [[ -z "$line" || "$line" =~ ^[[:space:]]*# ]] && continue
-        IFS=, read -r tag program comment <<< "$line"
-        echo "$comment" | grep -q "^\".*\"$" && comment="$(echo "$comment" | sed -E "s/(^\"|\"$)//g")"
-        case "$tag" in
-            *) maininstall "$program" "$comment" ;;
-        esac
-    done < "$packages"
+	header "Package Installation"
+	echo
+  while IFS= read -r line; do
+      [[ -z "$line" || "$line" =~ ^[[:space:]]*# ]] && continue
+      IFS=, read -r tag program comment <<< "$line"
+      echo "$comment" | grep -q "^\".*\"$" && comment="$(echo "$comment" | sed -E "s/(^\"|\"$)//g")"
+      case "$tag" in
+          *) maininstall "$program" "$comment" ;;
+      esac
+  done < "$packages"
 }
 
 finalize() {
@@ -83,8 +83,9 @@ finalize() {
 
 ### This is how everything happens in an intuitive format and order.
 
-# Check `git` existance.
-command -v git >"$tmplog" 2>&1 || error_exit "Git not found" "- Required dependancy missing!"
+# Check `git`, `xbps-install` existance.
+command -v git >"$tmplog" 2>&1 || error_exit "Git not found - Required dependancy missing!"
+command -v xbps-install >"$tmplog" 2>&1 || error_exit "xbps-install not found - Required dependancy missing!"
 
 # Welcome to the script.
 initialize
