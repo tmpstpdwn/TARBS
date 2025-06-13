@@ -23,15 +23,15 @@ error_exit() {
 	header "Error"
 	echo -ne "\n$1\n\n"
 	echo -ne "Check $logfile for more info.\n\n"
-	echo "$tmplog" > "$logfile"
+	cat "$tmplog" > "$logfile"
 	exit 1
 }
 
 initialize() {
 	header "Welcome to TARBS"
-	echo -e "Welcome to Tmpstpdwn's Auto-Rice Bootstrapping Script!\n\nThis script will install my personal minimal void-linux environment."
-	echo -e "Caution: This script will delete everything in \$HOME."
-	echo "Press 'y' to continue."
+	echo -e "\nWelcome to Tmpstpdwn's Auto-Rice Bootstrapping Script!\nThis script will install my personal minimal void-linux environment."
+	echo -e "Caution: This script will delete everything in $HOME."
+	echo -e "\nPress 'y' to continue."
 	read -p "Let's go? (y/N): " choice
 	if [[ "$choice" != [yY] ]]; then
 	    clear
