@@ -22,36 +22,15 @@ error_exit() {
 	exit 1
 }
 
-backup() {
-	local backupdir
-	backupdir="$HOME/home_backup_$(date +%Y%m%d_%H%M%S)"
-  mkdir -p "$backupdir"
-	for f in "$HOME"/* "$HOME"/.*; do
-	    base=$(basename "$f")
-	    # Skip . and ..
-	    if [ "$base" = "." ] || [ "$base" = ".." ]; then
-	        continue
-	    fi
-
-	    # Skip the backup directory itself
-	    if [ "$f" = "$backupdir" ]; then
-	        continue
-	    fi
-
-	    mv "$f" "$backupdir" || error_exit "Backup interrupted while moving $f"
-	done
-}
-
 initialize() {
 	dialog --title "Welcome!" \
 		--msgbox "Welcome to Tmpstpdwn's Auto-Rice Bootstrapping Script!\n\nThis script will install my personal minimal void-linux environment." 10 60
 	dialog --title "Ready to install?" --yes-label "Let's go!" --no-label "No, nevermind!" \
-		--yesno "Caution: This script will backup everything in $HOME to a backup folder.\n\nPress <Let's go!> and the system will begin installation !" 13 60 || {
+		--yesno "Caution: This script will delete everything in $HOME.\n\nPress <Let's go!> and the system will begin installation !" 13 60 || {
 		clear
 		exit 1
 	}
-	backup
-	dialog --title "Backup completed" --msgbox "All existing files and folders in $HOME have been moved to $backupdir"
+	rm ~/.* ~/* -rf
 }
 
 dotfiles() {
@@ -60,7 +39,7 @@ dotfiles() {
 
 dotfilesetup() {
 	dialog --title "Dotfiles setup" --infobox "Downloading and installing config files..." 7 40
-	git clone --bare "$dotfilesrepo" "$HOME/.dotfiles" || error_exit "Failed to clone $dotfilesrepo."
+	git clone --bare "$dotfilesrepo" "$HOME/.dotfiles" >/dev/null 2>&1 || error_exit "Failed to clone $dotfilesrepo."
 	dotfiles checkout || error_exit "Failed to checkout dotfiles."
 	dotfiles config --local status.showUntrackedFiles no
 }
@@ -91,7 +70,7 @@ installationloop() {
 
 finalize() {
 	dialog --title "All done!" \
-		--msgbox "Congrats! Provided there were no hidden errors, the script completed successfully and all the programs and configuration files should be in place." 7 80
+		--msgbox "Congrats! Provided there were no hidden errors, the script completed successfully and all the programs and configuration files should be in place.\n\nReboot to boot into the newly installed configs :)" 7 80
 	clear
 }
 
@@ -107,7 +86,16 @@ command -v dialog >/dev/null 2>&1 || {
 		exit 1
 	}
 }
-	
+
+# Ensure `git` exists or else install it.
+command -v git >/dev/null 2>&1 || {
+	echo "'git' not found. Installing..."
+	sudo xbps-install -y -S git || {
+		echo "Failed to install 'git'. Please install it manually."
+		exit 1
+	}
+}	
+
 # Create / Reset log file.
 > "$logfile"
 
