@@ -1,4 +1,4 @@
-# Tmpstpdwn's Auto-Rice Bootstrapping Scripts (TARBS)
+# Tmpstpdwn's Auto-Rice Bootstrapping Script (TARBS)
 
 ## What is TARBS?
 
