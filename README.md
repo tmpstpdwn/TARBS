@@ -2,7 +2,6 @@
 
 **TARBS** is a simple, extensible script to automatically set up a minimal Linux environment, including your dotfiles and essential packages.
 
-
 ## 🚀 What Does TARBS Do?
 
 TARBS automates the process of:
@@ -28,15 +27,18 @@ $HOME/.packages
 
 This file is part of the dotfiles repo and contains a list of packages to install, formatted as a **CSV with three columns**:
 
-| Tag | Package Name | Description |
+| Tag | Package Name / Link | Description |
 |-----|---------------|-------------|
-| (blank) | `neovim` | `"A modern Vim-based text editor"` |
+| V | `neovim` | `"A modern Vim-based text editor"` |
+| G | `https://github.com/tmpstpdwn/dwm-tmpstpdwn` | `"Window manager from suckless"` |
 
-- **Column 1:** _Tag_ – Specifies the installation method. (Currently, only main repo packages are supported, using an empty tag.)
+- **Column 1:** _Tag_ – Specifies the installation method.
+  - V for packages from void official repo.
+  - G for `git clone make install`.
 - **Column 2:** _Package name_ – The exact package name used by the system package manager.
 - **Column 3:** _Description_ – A short human-readable phrase (in quotes if it includes commas).
 
-During installation, TARBS prints the description to show progress in a meaningful way.
+During installation, TARBS prints the description.
 
 The `.packages` files is expected to be at `$HOME` of the dotfiles git repo, this works
 as package installations comes after dotfiles setup.
@@ -44,8 +46,8 @@ as package installations comes after dotfiles setup.
 ### 📍 Example `.packages` Entry
 
 ```csv
-,neovim,"A modern Vim-based text editor"
-,git,"Distributed version control system"
+V,neovim,"A modern Vim-based text editor"
+V,git,"Distributed version control system"
 ```
 
 This format allows for easy parsing, editing, and expansion of the package list.
