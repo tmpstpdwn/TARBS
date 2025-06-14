@@ -1,56 +1,71 @@
-# Tmpstpdwn's Auto-Rice Bootstrapping Script
+# TARBS - Tmpstpdwn's Auto-Rice Bootstrapping Script
 
-## What is TARBS?
+**TARBS** is a simple, extensible script to automatically set up a minimal Linux environment, including your dotfiles and essential packages.
 
-TARBS is a script that autoinstalls and autoconfigures a minimal Linux environment.
 
-## What does it do?
+## 🚀 What Does TARBS Do?
 
-TARBS does the following things:
-- Download and setup dotfiles.
-- install packages.
+TARBS automates the process of:
 
-I manage dotfiles using [The git bare method](https://www.atlassian.com/git/tutorials/dotfiles).
-Therefore this script installs dotfiles using the method described in the article.
+- Installing your dotfiles (via the **bare Git method**).
+- Installing system packages based on a configurable `.packages` list.
 
-TARBS require `.packages` csv file, a list of packages to be installed, mode of installation and a short desciption for each package.
-This file is expected to be at `$HOME/.packages` of the dotfiles git repo.
+This is particularly useful for quickly setting up new systems or rebuilding your environment.
 
-As the packages are installed after dotfiles setup, putting the package list in the dotfiles git repo makes it convenient.
+## 📁 Dotfiles Management
 
-## Customization
+TARBS uses the [Git bare repository method for dotfile management](https://www.atlassian.com/git/tutorials/dotfiles), which keeps your home directory clean and version-controlled.
 
-By default, TARBS installs [my dotfiles repo (voidrice) here](https://github.com/tmpstpdwn/.dotfiles).
-so the list of packages it uses is [here in .packages](https://github.com/tmpstpdwn/.dotfiles/blob/main/.packages).
+By default, it clones [my dotfiles repo (voidrice)](https://github.com/tmpstpdwn/.dotfiles). You can easily change this by editing the `dotfilesrepo` variable in the script.
 
-You can change this behaviour by modifying the `dotfilesrepo` variable in the script to make it use your dotfiles
-repo.
+## 📦 Package List: `.packages`
 
-### The `.packages` list
+The script expects a `.packages` file located at:
 
-TARBS will parse the given programs list and install all given programs. Note
-that the programs file must be a three column `.csv`.
+```
+$HOME/.packages
+```
 
-The first column is a "tag" that determines how the program is installed, ""
-(blank) for the main repository.
+This file is part of the dotfiles repo and contains a list of packages to install, formatted as a **CSV with three columns**:
 
-The second column is the name of the program in the repository, and the
-third column is a description (should be a verb phrase) that describes the program.
-During installation, TARBS will print out this information in a grammatical sentence.
+| Tag | Package Name | Description |
+|-----|---------------|-------------|
+| (blank) | `neovim` | `"A modern Vim-based text editor"` |
 
-If you include commas in your program descriptions, be sure to include double
-quotes around the whole description to ensure correct parsing.
+- **Column 1:** _Tag_ – Specifies the installation method. (Currently, only main repo packages are supported, using an empty tag.)
+- **Column 2:** _Package name_ – The exact package name used by the system package manager.
+- **Column 3:** _Description_ – A short human-readable phrase (in quotes if it includes commas).
 
-### The script itself
+During installation, TARBS prints the description to show progress in a meaningful way.
+The `.packages` files is expected to be at `$HOME` of the dotfiles git repo, this works
+as packages installations comes after dotfiles setup.
 
-The script is extensively divided into functions for easier readability and
-trouble-shooting. Most everything should be self-explanatory.
+### 📍 Example `.packages` Entry
 
-The main work is done by the `installationloop` function, which iterates
-through the programs file and determines based on the tag of each program,
-which commands to run to install it. You can easily add new methods of
-installations and tags as well.
+```csv
+,neovim,"A modern Vim-based text editor"
+,git,"Distributed version control system"
+```
 
-## LICENSE
+This format allows for easy parsing, editing, and expansion of the package list.
 
-This project is licensed under GPL3 [LICENSE](LICENSE).
+## 🧪 Dependancies
+
+- Git
+- `xbps-install` (Void Linux default package manager)
+
+Ensure you run the script as a **regular user** with `sudo` privileges — not as root. The script will request sudo access when needed.
+
+## 🔧 Customization
+
+Want to use your own dotfiles or packages?
+
+- **Use your own dotfiles**: Change the `dotfilesrepo` variable in the script.
+- **Customize your package list**: Modify the `.packages` file inside your dotfiles repo.
+
+You can also extend the script to support additional tags (e.g., for AUR, flatpak, custom builds, etc.).
+
+## 📝 License
+
+TARBS is licensed under the **GNU GPLv3**.  
+See the [LICENSE](LICENSE) file for more details.
