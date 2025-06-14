@@ -35,7 +35,7 @@ This file is part of the dotfiles repo and contains a list of packages to instal
 - **Column 1:** _Tag_ – Specifies the installation method.
   - V for packages from void official repo.
   - G for `git clone make install`.
-- **Column 2:** _Package name_ – The exact package name used by the system package manager.
+- **Column 2:** _Package name_ / _Link_ – The exact name or link for the package based on installation mode.
 - **Column 3:** _Description_ – A short human-readable phrase (in quotes if it includes commas).
 
 During installation, TARBS prints the description.
@@ -54,8 +54,9 @@ This format allows for easy parsing, editing, and expansion of the package list.
 
 ## 🧪 Dependancies
 
+- Make
 - Git
-- `xbps-install` (Void Linux default package manager)
+- xbps-install (Void Linux default package manager)
 
 Ensure you run the script as a **regular user** with `sudo` privileges — not as root. The script will request sudo access when needed.
 
