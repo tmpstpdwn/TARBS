@@ -27,6 +27,11 @@ error_exit() {
 	exit 1
 }
 
+depcmnds() {
+	command -v git >"$tmplog" 2>&1 || error_exit "Git not found - Required dependancy missing!"
+	command -v xbps-install >"$tmplog" 2>&1 || error_exit "xbps-install not found - Required dependancy missing!"
+}
+
 initialize() {
 	header "Welcome to TARBS"
 	echo -e "\nWelcome to Tmpstpdwn's Auto-Rice Bootstrapping Script!\nThis script will install my personal minimal void-linux environment."
@@ -49,6 +54,13 @@ dotfilesetup() {
 	git clone --bare "$dotfilesrepo" "$HOME/.dotfiles" >"$tmplog" 2>&1 || error_exit "Failed to clone $dotfilesrepo."
 	dotfiles checkout >"$tmplog" 2>&1 || error_exit "Failed to checkout dotfiles."
 	dotfiles config --local status.showUntrackedFiles no
+}
+
+depfiles() {
+	if [ ! -f "$packages" ];
+		echo "$packages file missing!" > "$tmplog"
+		then error_exit "Missing Package list File - Required for package installation!"
+	fi
 }
 
 installpkg() {
@@ -81,11 +93,8 @@ finalize() {
 
 ### THE ACTUAL SCRIPT ###
 
-### This is how everything happens in an intuitive format and order.
-
-# Check `git`, `xbps-install` existance.
-command -v git >"$tmplog" 2>&1 || error_exit "Git not found - Required dependancy missing!"
-command -v xbps-install >"$tmplog" 2>&1 || error_exit "xbps-install not found - Required dependancy missing!"
+# Check for dependant commands.
+depcmnds
 
 # Welcome to the script.
 initialize
@@ -93,14 +102,10 @@ initialize
 # Install the dotfiles. 
 dotfilesetup
 
-# Ensure `$packages` exists or else quit.
-if [ ! -f "$packages" ]; then
-	header "Missing Package list File" "- Required for package installation!"
-	echo -ne "\nmake sure $packages exists before running.\n\n"
-	exit 1
-fi
+# Check for dependant files.
+depfiles
 
-# The command that does the installing.
+# Package installations.
 installationloop
 
 # Last message! Install complete!
