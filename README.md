@@ -43,16 +43,11 @@ During installation, TARBS prints the description.
 The `.packages` files is expected to be at `$HOME` of the dotfiles git repo, this works
 as package installations comes after dotfiles setup.
 
-### 📍 Example `.packages` Entry
-
-```csv
-V,neovim,"A modern Vim-based text editor"
-V,git,"Distributed version control system"
-```
+[here](https://raw.githubusercontent.com/tmpstpdwn/.dotfiles/refs/heads/main/.packages) is my `.packages` file for reference.
 
 This format allows for easy parsing, editing, and expansion of the package list.
 
-## 🧪 Dependancies
+## 🧪 Dependencies
 
 - Make
 - Git
