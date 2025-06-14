@@ -10,13 +10,13 @@ dotfilesrepo="https://github.com/tmpstpdwn/.dotfiles.git"
 packages="$HOME/.packages"
 logfile="$HOME/tarbs.log"
 tmplog="/tmp/tarbs.log"
-requiredcmnds=(git xbps-install)
+requiredcmds=(git make xbps-install)
 
 ### PRIVILEGES ###
 
 if [ "$(id -u)" -eq 0 ]; then
-  echo "Do NOT run this script as root! Please run as a regular user."
-  exit 1
+	echo "Do NOT run this script as root! Please run as a regular user."
+	exit 1
 fi
 
 if ! sudo -v; then
@@ -46,25 +46,25 @@ error_exit() {
 }
 
 depcmnds() {
-  for cmd in "${requiredcmds[@]}"; do
-      if ! command -v "$cmd" >/dev/null 2>&1; then
-          echo "Missing dependency: $cmd" >> "$tmplog"
-          error_exit "$cmd not found - Required dependency missing!"
-      fi
+	for cmd in "${requiredcmds[@]}"; do
+		if ! command -v "$cmd" >/dev/null 2>&1; then
+			echo "Missing dependency: $cmd" >> "$tmplog"
+			error_exit "$cmd not found - Required dependency missing!"
+		fi
   done
 }
 
 initialize() {
 	header "Welcome to TARBS"
-	echo -e "\nWelcome to Tmpstpdwn's Auto-Rice Bootstrapping Script!\nThis script will install my personal minimal void-linux environment."
+	echo -e "\nWelcome to Tmpstpdwn's Auto-Rice Bootstrapping Script!."
 	echo -e "Caution: This script will delete everything in $HOME."
 	echo -e "\nPress 'y' to continue."
 	read -r -p "Let's go? (y/N): " choice
 	if [[ "$choice" != [yY] ]]; then
-	    clear
-	    exit 1
+		echo -ne "\nAborting...\n\n"
+		exit 1
 	fi
-	rm ~/.* ~/* -rf >"$tmplog" 2>&1 || error_exit "Failed to clear $HOME."
+	rm -rf "$HOME"/.[!.]* "$HOME"/..?* "$HOME"/* >"$tmplog" 2>&1 || error_exit "Failed to clear $HOME."
 }
 
 dotfiles() {
@@ -85,23 +85,36 @@ depfiles() {
 	fi
 }
 
-installpkg() 
-
 voidinstall() {
 	echo "Installing $1 : $2"
-	{ sudo xbps-install -y -S "$1" 2>&1 | tee "$tmplog" } || error_exit "Error installing $1."
+  sudo xbps-install -y -S "$1" 2>&1 | tee "$tmplog"
+  if [ "${PIPESTATUS[0]}" -eq 1 ]; then
+  	error_exit "Failed to install $1."
+  fi
+}
+
+gitbuildinstall() {
+  build_dir="/tmp/build-$1"
+  echo "Installing from Git: $description"
+  rm -rf "$build_dir"
+  git clone "$1" "$build_dir" >"$tmplog" 2>&1 || error_exit "Failed to clone $repo_url"
+  cd "$build_dir" || error_exit "Cannot enter build directory: $build_dir"
+  make >"$tmplog" 2>&1 || error_exit "Build failed for $repo_name"
+  sudo make install >"$tmplog" 2>&1 || error_exit "Install failed for $repo_name"
+  cd - >/dev/null
 }
 
 installationloop() {
 	header "Package Installation"
 	echo
   while IFS= read -r line; do
-      [[ -z "$line" || "$line" =~ ^[[:space:]]*# ]] && continue
-      IFS=, read -r tag program comment <<< "$line"
-      echo "$comment" | grep -q "^\".*\"$" && comment="$(echo "$comment" | sed -E "s/(^\"|\"$)//g")"
-      case "$tag" in
-          *) voidinstall "$program" "$comment" ;;
-      esac
+		[[ -z "$line" || "$line" =~ ^[[:space:]]*# ]] && continue
+		IFS=, read -r tag program comment <<< "$line"
+    echo "$comment" | grep -q "^\".*\"$" && comment="$(echo "$comment" | sed -E "s/(^\"|\"$)//g")"
+    case "$tag" in
+    	V) voidinstall "$program" "$comment" ;;
+    	G) gitbuildinstall "$program" "$comment" ;;
+    esac
   done < "$packages"
 }
 
