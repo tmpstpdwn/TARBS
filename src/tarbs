@@ -10,6 +10,23 @@ dotfilesrepo="https://github.com/tmpstpdwn/.dotfiles.git"
 packages="$HOME/.packages"
 logfile="$HOME/tarbs.log"
 tmplog="/tmp/tarbs.log"
+requiredcmnds=(git xbps-install)
+
+### PRIVILEGES ###
+
+if [ "$(id -u)" -eq 0 ]; then
+  echo "Do NOT run this script as root! Please run as a regular user."
+  exit 1
+fi
+
+if ! sudo -v; then
+	echo "$USER lacks sudo privileges!"
+	exit 1
+fi
+
+( while true; do sudo -v; sleep 60; done ) &
+keep_sudo_pid=$!
+trap 'kill "$keep_sudo_pid"' EXIT
 
 ### FUNCTIONS ###
 
@@ -24,12 +41,17 @@ error_exit() {
 	echo -ne "\n$1\n\n"
 	echo -ne "Check $logfile for more info.\n\n"
 	cat "$tmplog" > "$logfile"
+	kill "$keep_sudo_pid"
 	exit 1
 }
 
 depcmnds() {
-	command -v git >"$tmplog" 2>&1 || error_exit "Git not found - Required dependancy missing!"
-	command -v xbps-install >"$tmplog" 2>&1 || error_exit "xbps-install not found - Required dependancy missing!"
+  for cmd in "${requiredcmds[@]}"; do
+      if ! command -v "$cmd" >/dev/null 2>&1; then
+          echo "Missing dependency: $cmd" >> "$tmplog"
+          error_exit "$cmd not found - Required dependency missing!"
+      fi
+  done
 }
 
 initialize() {
@@ -37,7 +59,7 @@ initialize() {
 	echo -e "\nWelcome to Tmpstpdwn's Auto-Rice Bootstrapping Script!\nThis script will install my personal minimal void-linux environment."
 	echo -e "Caution: This script will delete everything in $HOME."
 	echo -e "\nPress 'y' to continue."
-	read -p "Let's go? (y/N): " choice
+	read -r -p "Let's go? (y/N): " choice
 	if [[ "$choice" != [yY] ]]; then
 	    clear
 	    exit 1
@@ -46,7 +68,7 @@ initialize() {
 }
 
 dotfiles() {
-	/usr/bin/git --git-dir="$HOME/.dotfiles" --work-tree="$HOME" "$@"
+	git --git-dir="$HOME/.dotfiles" --work-tree="$HOME" "$@"
 }
 
 dotfilesetup() {
@@ -57,14 +79,14 @@ dotfilesetup() {
 }
 
 depfiles() {
-	if [ ! -f "$packages" ];
+	if [ ! -f "$packages" ]; then
 		echo "$packages file missing!" > "$tmplog"
-		then error_exit "Missing Package list File - Required for package installation!"
+		error_exit "Missing Package list File - Required for package installation!"
 	fi
 }
 
 installpkg() {
-	sudo xbps-install -y -S "$1" >"$tmplog" 2>&1
+	sudo xbps-install -y -S "$1" 2>&1 | tee "$tmplog"
 }
 
 maininstall() {
@@ -89,6 +111,7 @@ finalize() {
 	header "All done!"
 	echo -e "\nCongrats! the script completed successfully and all the programs and configuration files should be in place."
 	echo -ne "Reboot to boot into the newly installed configs :)\n\n"
+	kill "$keep_sudo_pid"
 }
 
 ### THE ACTUAL SCRIPT ###
