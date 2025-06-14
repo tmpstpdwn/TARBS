@@ -37,8 +37,9 @@ This file is part of the dotfiles repo and contains a list of packages to instal
 - **Column 3:** _Description_ – A short human-readable phrase (in quotes if it includes commas).
 
 During installation, TARBS prints the description to show progress in a meaningful way.
+
 The `.packages` files is expected to be at `$HOME` of the dotfiles git repo, this works
-as packages installations comes after dotfiles setup.
+as package installations comes after dotfiles setup.
 
 ### 📍 Example `.packages` Entry
 
