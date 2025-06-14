@@ -85,13 +85,11 @@ depfiles() {
 	fi
 }
 
-installpkg() {
-	sudo xbps-install -y -S "$1" 2>&1 | tee "$tmplog"
-}
+installpkg() 
 
-maininstall() {
+voidinstall() {
 	echo "Installing $1 : $2"
-	installpkg "$1" || error_exit "Error installing $1."
+	{ sudo xbps-install -y -S "$1" 2>&1 | tee "$tmplog" } || error_exit "Error installing $1."
 }
 
 installationloop() {
@@ -102,7 +100,7 @@ installationloop() {
       IFS=, read -r tag program comment <<< "$line"
       echo "$comment" | grep -q "^\".*\"$" && comment="$(echo "$comment" | sed -E "s/(^\"|\"$)//g")"
       case "$tag" in
-          *) maininstall "$program" "$comment" ;;
+          *) voidinstall "$program" "$comment" ;;
       esac
   done < "$packages"
 }
