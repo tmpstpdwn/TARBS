@@ -10,7 +10,7 @@ dotfilesrepo="https://github.com/tmpstpdwn/.dotfiles.git"
 packages="$HOME/.packages"
 logfile="$HOME/tarbs.log"
 tmplog="/tmp/tarbs.log"
-requiredcmds=(git make xbps-install)
+requiredcmds=(git base-devel xbps-install)
 
 ### FUNCTIONS ###
 
