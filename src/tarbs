@@ -88,7 +88,6 @@ depfiles() {
 
 voidinstall() {
 	echo "Installing $1 : $2"
-	sleep 1
 	sudo xbps-install -y "$1" 2> "$tmplog"
 	if [ $? -ne 0 ]; then
 		error_exit "Failed to install $1."
@@ -115,6 +114,7 @@ installationloop() {
 	echo
 	updaterepos || error_exit "Failed to update repos."
   while IFS= read -r line; do
+		echo
 		[[ -z "$line" || "$line" =~ ^[[:space:]]*# ]] && continue
 		IFS=, read -r tag program comment <<< "$line"
     echo "$comment" | grep -q "^\".*\"$" && comment="$(echo "$comment" | sed -E "s/(^\"|\"$)//g")"
@@ -122,6 +122,7 @@ installationloop() {
     	V) voidinstall "$program" "$comment" ;;
     	G) gitbuildinstall "$program" "$comment" ;;
     esac
+		sleep 1
   done < "$packages"
 }
 
