@@ -88,11 +88,16 @@ depfiles() {
 
 voidinstall() {
 	echo "Installing $1 : $2"
-	sudo xbps-install -y -S "$1" 2> "$tmplog"
+	sleep 1
+	sudo xbps-install -y "$1" 2> "$tmplog"
 	if [ $? -ne 0 ]; then
 		error_exit "Failed to install $1."
 	fi
 }
+
+updaterepos() {
+	sudo xbps-install -Sy 2> "$tmplog"
+ }
 
 gitbuildinstall() {
   build_dir="/tmp/build-$1"
@@ -108,6 +113,7 @@ gitbuildinstall() {
 installationloop() {
 	header "Package Installation"
 	echo
+	updaterepos || error_exit "Failed to update repos."
   while IFS= read -r line; do
 		[[ -z "$line" || "$line" =~ ^[[:space:]]*# ]] && continue
 		IFS=, read -r tag program comment <<< "$line"
