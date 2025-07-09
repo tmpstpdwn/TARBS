@@ -35,7 +35,7 @@ depcmnds() {
 			echo "Missing dependency: $cmd" >> "$tmplog"
 			error_exit "$cmd not found - Required dependency missing!"
 		fi
-  done
+	done
 }
 
 initialize() {
@@ -83,15 +83,15 @@ updaterepos() {
  }
 
 gitbuildinstall() {
-  build_dir="/tmp/build-$1"
-  echo "Installing from Git: $2"
+	build_dir="/tmp/build-$1"
+	echo "Installing from Git: $2"
 	sleep 1
-  rm -rf "$build_dir"
-  git clone "$1" "$build_dir" 2> "$tmplog" || error_exit "Failed to clone $1"
-  cd "$build_dir" || error_exit "Cannot enter build directory: $1"
+	rm -rf "$build_dir"
+	git clone "$1" "$build_dir" 2> "$tmplog" || error_exit "Failed to clone $1"
+	cd "$build_dir" || error_exit "Cannot enter build directory: $1"
 	make 2> "$tmplog" || error_exit "Build failed for $1"
-  sudo make install 2> "$tmplog" || error_exit "Install failed for $1"
-  cd - >/dev/null
+	sudo make install 2> "$tmplog" || error_exit "Install failed for $1"
+	cd - >/dev/null
 }
 
 installationloop() {
@@ -99,15 +99,15 @@ installationloop() {
 	echo
 	updaterepos || error_exit "Failed to update repos."
 	echo
-  while IFS= read -r line; do
+	while IFS= read -r line; do
 		[[ -z "$line" || "$line" =~ ^[[:space:]]*# ]] && continue
 		IFS=, read -r tag program comment <<< "$line"
-    echo "$comment" | grep -q "^\".*\"$" && comment="$(echo "$comment" | sed -E "s/(^\"|\"$)//g")"
-    case "$tag" in
-    	V) voidinstall "$program" "$comment" ;;
-    	G) gitbuildinstall "$program" "$comment" ;;
-    esac
-  done < "$packages"
+		echo "$comment" | grep -q "^\".*\"$" && comment="$(echo "$comment" | sed -E "s/(^\"|\"$)//g")"
+		case "$tag" in
+			V) voidinstall "$program" "$comment" ;;
+			G) gitbuildinstall "$program" "$comment" ;;
+		esac
+	done < "$packages"
 }
 
 finalize() {
