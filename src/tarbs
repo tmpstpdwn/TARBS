@@ -10,7 +10,7 @@ dotfilesrepo="https://github.com/tmpstpdwn/.dotfiles.git"
 packages="$HOME/.packages"
 logfile="$HOME/tarbs.log"
 tmplog="/tmp/tarbs.log"
-requiredcmds=(git base-devel xbps-install)
+requiredcmds=(git make xbps-install)
 
 ### FUNCTIONS ###
 
@@ -25,7 +25,6 @@ error_exit() {
 	echo -ne "\n$1\n\n"
 	echo -ne "Check $logfile for more info.\n\n"
 	cp "$tmplog" "$logfile"
-	kill "$keep_sudo_pid"
 	exit 1
 }
 
@@ -70,6 +69,7 @@ depfiles() {
 }
 
 voidinstall() {
+	echo
 	echo "Installing $1 : $2"
 	sleep 1
 	sudo xbps-install -y "$1" 2> "$tmplog"
@@ -80,9 +80,10 @@ voidinstall() {
 
 updaterepos() {
 	sudo xbps-install -Sy 2> "$tmplog"
- }
+}
 
 gitbuildinstall() {
+	echo
 	build_dir="/tmp/build-$1"
 	echo "Installing from Git: $2"
 	sleep 1
@@ -96,9 +97,7 @@ gitbuildinstall() {
 
 installationloop() {
 	header "Package Installation"
-	echo
 	updaterepos || error_exit "Failed to update repos."
-	echo
 	while IFS= read -r line; do
 		[[ -z "$line" || "$line" =~ ^[[:space:]]*# ]] && continue
 		IFS=, read -r tag program comment <<< "$line"
@@ -114,7 +113,6 @@ finalize() {
 	header "All done!"
 	echo -e "\nCongrats! the script completed successfully and all the programs and configuration files should be in place."
 	echo -ne "Reboot to boot into the newly installed configs :)\n\n"
-	kill "$keep_sudo_pid"
 }
 
 ### THE ACTUAL SCRIPT ###
@@ -130,6 +128,7 @@ if ! sudo -v; then
 	exit 1
 fi
 
+# Start sudo loop.
 ( while true; do sudo -v; sleep 60; done ) &
 keep_sudo_pid=$!
 trap 'kill "$keep_sudo_pid"' EXIT

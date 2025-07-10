@@ -7,9 +7,9 @@
 TARBS automates the process of:
 
 - Installing your dotfiles (via the **bare Git method**).
-- Installing system packages based on a configurable `.packages` list.
+- Installing packages based on a configurable `.packages` list.
 
-This is particularly useful for quickly setting up new systems or rebuilding your environment.
+This is particularly useful for quickly setting up new systems with your environment.
 
 ## 📁 Dotfiles Management
 
