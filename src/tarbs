@@ -70,7 +70,7 @@ depfiles() {
 
 voidinstall() {
 	echo
-	echo "Installing $1 : $2"
+	echo "Installing $1."
 	sleep 1
 	sudo xbps-install -y "$1" 2> "$tmplog"
 	if [ $? -ne 0 ]; then
@@ -87,10 +87,9 @@ installationloop() {
 	updaterepos || error_exit "Failed to update repos."
 	while IFS= read -r line; do
 		[[ -z "$line" || "$line" =~ ^[[:space:]]*# ]] && continue
-		IFS=, read -r tag program comment <<< "$line"
-		echo "$comment" | grep -q "^\".*\"$" && comment="$(echo "$comment" | sed -E "s/(^\"|\"$)//g")"
+		IFS=, read -r tag program <<< "$line"
 		case "$tag" in
-			V) voidinstall "$program" "$comment" ;;
+			V) voidinstall "$program" ;;
 		esac
 	done < "$packages"
 }
