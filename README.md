@@ -27,14 +27,13 @@ $HOME/.packages
 
 This file is part of the dotfiles repo and contains a list of packages to install, formatted as a **CSV with three columns**:
 
-| Tag | Package Name / Link | Description |
-|-----|---------------|-------------|
-| V | `neovim` | `"A modern Vim-based text editor"` |
+| Tag | Package Name |
+|-----|--------------|
+| V | `neovim` |
 
 - **Column 1:** _Tag_ – Specifies the installation method.
   - V for packages from void official repo.
 - **Column 2:** _Package name_ / _Link_ – The exact name or link for the package based on installation mode.
-- **Column 3:** _Description_ – A short human-readable phrase (in quotes if it includes commas).
 
 During installation, TARBS prints the description.
 
