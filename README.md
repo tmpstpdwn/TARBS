@@ -25,7 +25,7 @@ The script expects a `.packages` file located at:
 $HOME/.packages
 ```
 
-This file is part of the dotfiles repo and contains a list of packages to install, formatted as a **CSV with three columns**:
+This file is part of the dotfiles repo and contains a list of packages to install, formatted as a **CSV with two columns**:
 
 | Tag | Package Name |
 |-----|--------------|
